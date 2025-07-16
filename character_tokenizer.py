@@ -1,6 +1,5 @@
 def character_tokenizer(text):
     " A character-level tokenizer that splits text into individual characters."
-    
     token = list(text)
     
     return token
