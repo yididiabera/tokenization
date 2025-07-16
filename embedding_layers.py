@@ -72,7 +72,6 @@ def bpe_tokenizer(text, num_merges=10):
     final_tokens = []
     i = 0
     while i < len(text):
-        # Try to find the longest possible token from the vocabulary
         for j in range(len(text), i, -1):
             candidate = text[i:j]
             if candidate in vocabulary:
@@ -80,7 +79,6 @@ def bpe_tokenizer(text, num_merges=10):
                 i = j
                 break
         else:
-            # If no match found, take single character
             final_tokens.append(text[i])
             i += 1
     
@@ -128,7 +126,7 @@ def generate_embeddings(text, tokenizer_type='word'):
     if tokenizer_type == 'whitespace':
         tokens = whitespace_tokenizer(text.lower())
     elif tokenizer_type == 'word':
-        tokens = word_level_tokenizer(text.lower())
+        tokens = wordLevel_tokenizer(text.lower())
     elif tokenizer_type == 'bpe':
         tokens = bpe_tokenizer(text.lower())
     else:
@@ -150,7 +148,7 @@ def generate_embeddings(text, tokenizer_type='word'):
     return tokens, embeddings, vocab
 
 # Example usage
-text = "I'm studying embeddings!"
+text = "I'm not in danger. I'm the danger!"
 
 # Compare different tokenizers
 for tokenizer in ['whitespace', 'word', 'bpe']:
@@ -161,4 +159,4 @@ for tokenizer in ['whitespace', 'word', 'bpe']:
     print("Vocabulary size:", len(vocab.word2idx))
     print("Embedding shape:", embeddings.shape)
     print("Sample embedding for first token:")
-    print(embeddings[0][:10])  # Show first 10 dimensions
+    print(embeddings[0][:10])  
