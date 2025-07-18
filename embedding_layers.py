@@ -1,6 +1,10 @@
 import torch
 import torch.nn as nn
 from collections import Counter
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+import seaborn as sns
+
 
 def whitespace_tokenizer(text):
     "A basic whitespace tokenizer that splits text into tokens based on whitespace."
@@ -147,6 +151,9 @@ def generate_embeddings(text, tokenizer_type='word'):
     
     return tokens, embeddings, vocab
 
+
+
+
 # Example usage
 text = "I'm not in danger. I'm the danger!"
 
@@ -160,3 +167,46 @@ for tokenizer in ['whitespace', 'word', 'bpe']:
     print("Embedding shape:", embeddings.shape)
     print("Sample embedding for first token:")
     print(embeddings[0][:10])  
+
+
+# Visualize embeddings
+def visualize_embeddings(all_tokens, all_embeddings, all_labels):
+    # Combine all embeddings into one big tensor and reduce to 2D using PCA
+    all_embeddings_tensor = torch.cat(all_embeddings, dim=0).numpy()
+    reduced_embeddings = PCA(n_components=2).fit_transform(all_embeddings_tensor)
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    for tokenizer_type in set(all_labels):
+        indices = [i for i, label in enumerate(all_labels) if label == tokenizer_type]
+        x = [reduced_embeddings[i][0] for i in indices]
+        y = [reduced_embeddings[i][1] for i in indices]
+        plt.scatter(x, y, label=tokenizer_type.upper(), s=60)
+
+        for i in indices:
+            plt.text(reduced_embeddings[i][0], reduced_embeddings[i][1], all_tokens[i], fontsize=9)
+
+    plt.title("Token Embeddings Visualized with PCA")
+    plt.xlabel("PCA 1")
+    plt.ylabel("PCA 2")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    # plt.show()
+    plt.savefig("embedding_visualization.png", dpi=300)
+    print("✅ Plot saved as 'embedding_visualization.png'")
+
+
+# Collect embeddings and labels for visualization
+all_tokens = []
+all_embeddings = []
+all_labels = []
+
+for tokenizer in ['whitespace', 'word', 'bpe']:
+    tokens, embeddings, vocab = generate_embeddings(text, tokenizer)
+    all_tokens.extend(tokens)
+    all_embeddings.append(embeddings)
+    all_labels.extend([tokenizer] * len(tokens))
+
+# Call the visualization
+visualize_embeddings(all_tokens, all_embeddings, all_labels)
