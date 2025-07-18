@@ -8,6 +8,7 @@ def whitespace_tokenizer(text):
 
 # Example 
 input = "I am not in danger. I am the danger!"
+# input = "that 's far too tragic to merit such superficial treatment"
 tokens = whitespace_tokenizer(input)
 
 print("Original text:", input)

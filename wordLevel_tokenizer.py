@@ -19,6 +19,7 @@ def wordLevel_tokenizer(text):
 
 # Example 
 input = "I'm not in danger. I'm the danger!"
+# input = "that 's far too tragic to merit such superficial treatment."
 tokens = wordLevel_tokenizer(input)
 
 print("Original text:", input)
