@@ -1,4 +1,27 @@
-```markdown
+# Tokenization and Embeddings Comparison Project
+
+## Project Overview
+This project implements and compares different tokenization strategies, ranging from basic custom methods to advanced pretrained models. It includes visualization of embedding representations using dimensionality reduction techniques like PCA.
+
+## Features
+
+### Implemented Tokenizers
+1. **Character-level**: Splits text into individual characters.
+2. **Whitespace**: Tokenizes based on spaces.
+3. **Word-level**: Handles punctuation and contractions more intelligently.
+4. **BPE (Byte Pair Encoding)**: Simplified implementation to learn subword units.
+5. **Hugging Face Tokenizers**: Uses pretrained models like **BERT** and **GPT-2** for advanced tokenization.
+
+### Core Functionality
+- Vocabulary construction and token-to-index mapping.
+- Embedding generation using PyTorch’s `nn.Embedding`.
+- 2D visualization of embedding spaces using PCA for interpretation.
+- Side-by-side comparison of different tokenizers on the same input text.
+
+## File Structure
+
+
+
 # Tokenization and Embeddings Comparison Project
 
 ## Project Overview
