@@ -9,7 +9,6 @@ import seaborn as sns
 def whitespace_tokenizer(text):
     "A basic whitespace tokenizer that splits text into tokens based on whitespace."
     
-    # Split the text on any whitespace character (space, tab, newline)
     tokens = text.split()
     
     return tokens
@@ -35,10 +34,8 @@ def wordLevel_tokenizer(text):
 
 def bpe_tokenizer(text, num_merges=10):
     " A simple Byte Pair Encoding (BPE) tokenizer that merges frequent character pairs."
-    # Step 1: Initialize with character-level tokens
     tokens = list(text)
     
-    # Helper function to get pair frequencies
     def get_pair_frequencies(tokens):
         pairs = {}
         for i in range(len(tokens) - 1):
@@ -46,7 +43,6 @@ def bpe_tokenizer(text, num_merges=10):
             pairs[pair] = pairs.get(pair, 0) + 1
         return pairs
     
-    # Helper function to merge the most frequent pair
     def merge_most_frequent_pair(tokens, pair):
         new_tokens = []
         i = 0
@@ -59,20 +55,20 @@ def bpe_tokenizer(text, num_merges=10):
                 i += 1
         return new_tokens
     
-    # Step 2: Create vocabulary by merging frequent pairs
+    # Create vocabulary by merging frequent pairs
     vocabulary = set(tokens)
     for _ in range(num_merges):
         pair_freqs = get_pair_frequencies(tokens)
         if not pair_freqs:
             break
-        # Find the most frequent pair
+        
         most_frequent_pair = max(pair_freqs, key=pair_freqs.get)
-        # Merge the most frequent pair
+
         tokens = merge_most_frequent_pair(tokens, most_frequent_pair)
-        # Add merged pair to vocabulary
+
         vocabulary.add(''.join(most_frequent_pair))
     
-    # Step 3: Tokenize using the learned vocabulary
+    # tokenization 
     final_tokens = []
     i = 0
     while i < len(text):
@@ -89,7 +85,6 @@ def bpe_tokenizer(text, num_merges=10):
     return final_tokens
 
 
-# 2. Vocabulary and Numericalization
 class Vocabulary:
     def __init__(self, tokens_list, min_freq=1):
         self.word2idx = {'<PAD>': 0, '<UNK>': 1}
@@ -108,25 +103,20 @@ class Vocabulary:
     def numericalize(self, tokens):
         return [self.word2idx.get(token, 1) for token in tokens]  # 1=UNK
 
-# 3. PyTorch Embedding Wrapper
 class TokenEmbedder(nn.Module):
     def __init__(self, vocab_size, embedding_dim=128):
         super().__init__()
         self.embedding = nn.Embedding(
             num_embeddings=vocab_size,
             embedding_dim=embedding_dim,
-            padding_idx=0  # Index for <PAD>
+            padding_idx=0 
         )
-        # Initialize weights
         self.embedding.weight.data.uniform_(-0.1, 0.1)
         
     def forward(self, token_ids):
-        # token_ids: List of numericalized tokens
         return self.embedding(torch.tensor(token_ids))
 
-# 4. Full Workflow Example
 def generate_embeddings(text, tokenizer_type='word'):
-    # Choose tokenizer
     if tokenizer_type == 'whitespace':
         tokens = whitespace_tokenizer(text.lower())
     elif tokenizer_type == 'word':
@@ -136,28 +126,21 @@ def generate_embeddings(text, tokenizer_type='word'):
     else:
         raise ValueError("Invalid tokenizer type")
     
-    # Build vocabulary (in practice, you'd pre-build this on your full dataset)
     vocab = Vocabulary([tokens])
     
-    # Numericalize tokens
     token_ids = vocab.numericalize(tokens)
     
-    # Create embedding layer
     embedder = TokenEmbedder(len(vocab.word2idx))
     
-    # Get embeddings
-    with torch.no_grad():  # No training needed for this example
+    with torch.no_grad():  
         embeddings = embedder(token_ids)
     
     return tokens, embeddings, vocab
 
 
-
-
 # Example usage
 text = "I'm not in danger. I'm the danger!"
 
-# Compare different tokenizers
 for tokenizer in ['whitespace', 'word', 'bpe']:
     tokens, embeddings, vocab = generate_embeddings(text, tokenizer)
     
@@ -169,13 +152,10 @@ for tokenizer in ['whitespace', 'word', 'bpe']:
     print(embeddings[0][:10])  
 
 
-# Visualize embeddings
 def visualize_embeddings(all_tokens, all_embeddings, all_labels):
-    # Combine all embeddings into one big tensor and reduce to 2D using PCA
     all_embeddings_tensor = torch.cat(all_embeddings, dim=0).numpy()
     reduced_embeddings = PCA(n_components=2).fit_transform(all_embeddings_tensor)
 
-    # Plotting
     plt.figure(figsize=(10, 6))
     for tokenizer_type in set(all_labels):
         indices = [i for i, label in enumerate(all_labels) if label == tokenizer_type]
@@ -197,7 +177,6 @@ def visualize_embeddings(all_tokens, all_embeddings, all_labels):
     print("✅ Plot saved as 'embedding_visualization.png'")
 
 
-# Collect embeddings and labels for visualization
 all_tokens = []
 all_embeddings = []
 all_labels = []
@@ -208,5 +187,4 @@ for tokenizer in ['whitespace', 'word', 'bpe']:
     all_embeddings.append(embeddings)
     all_labels.extend([tokenizer] * len(tokens))
 
-# Call the visualization
 visualize_embeddings(all_tokens, all_embeddings, all_labels)
